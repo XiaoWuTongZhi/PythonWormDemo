@@ -10,9 +10,6 @@ import pymongo
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
-
-
-
 def initialize():
     mongoServer = pymongo.MongoClient(host='mongodb://127.0.0.1', port=27017)
     print ("mongoDB connect status info:",mongoServer.server_info())
