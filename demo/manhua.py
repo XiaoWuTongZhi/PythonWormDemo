@@ -18,7 +18,7 @@ import re
 import execjs
 
 
-host= "https://img01.eshanyao.com/" #'https://mhcdn.manhuazj.com/'
+host= "https://img01.eshanyao.com" #'https://mhcdn.manhuazj.com/'
 l_url = "https://www.manhuadui.com"
 url = "https://www.manhuadui.com/manhua/jinjidejuren/"
 headers = {  # 模拟浏览器访问网页
@@ -26,10 +26,13 @@ headers = {  # 模拟浏览器访问网页
 proxies={'http':'http://127.0.0.1:8888','https':'https://127.0.0.1:8888'}
 response = requests.get(url=url)
 
+artifacts_path = '/Users/michaelwu/Desktop/Python/WormDemo/artifacts/'
+artifacts_dir_path = 'juren/'
+
 def main():
     #获取章节地址
     list_source = dir()
-    list_source = list_source[len(list_source)-2:]
+    list_source = list_source[len(list_source)-3:] #只爬取最新3话
     get_chapters(list_source)
 
 
@@ -73,22 +76,29 @@ def get_chapters(list_source):
         chapter_path = get_chapter_Path(res)
 
         print("down_url:")
-        chapter_root='juren/'+chapter_name
+        chapter_root=artifacts_dir_path+chapter_name # eg. juren/127话
+        dir_path = artifacts_path + chapter_root
+
+        # 判断如果本地已经有当前章节，则结束
+        if os.path.exists(dir_path):
+            print("已存在当前章节'%s'"%chapter_name)
+            continue
         count=1
         for chapter_image in chapter_image_list:
-            down_url = host+chapter_path+chapter_image
+            down_url = host+'/'+chapter_path+chapter_image
             print(down_url)
             download_image(down_url,chapter_root,chapter_image,count)
             count+=1
 
         # 降低服务器压力，每爬取一个章节的所有图片，延时10秒
         # 每爬取5个章节，再延时20秒
-        print('延时20秒')
-        time.sleep(20)
+        print(chapter_name+'章节下载完毕，即将延时3秒爬取下一章节')
+        time.sleep(3)
         i += 1
-        if (i % 5 == 0):
-            print('延时60秒')
-            time.sleep(20)
+        # if (i % 5 == 0):
+        #     print('延时60秒')
+        #     time.sleep(5)
+
 #这里从网页的script标签里，找数据,chapterImage被后台加密，放到script标签里
 '''
 参数：章节url
@@ -151,20 +161,20 @@ def get_decryptImages(chapterImages):
 
 #下载图片
 def download_image(url,chapter_root,image_name,count):
-    root = '/Users/michaelwu/Desktop/Python/WormDemo/artifacts/'  #给个目录
+    root = artifacts_path  #给个目录
     root = root+chapter_root+'/'
 
-    # 判断根目录是否存在，os.madir()创建根目录
-    if not os.path.exists(root):
-        os.mkdir(root)
+
     #url = 'https://mhcdn.manhuazj.com/images/comic/5/8412/1551394269327841209ad0db6d.jpg'
     path = root + str(count)+'页.jpg'
 
     print(path)
     try:
-        if not os.path.exists(path):
+        if not os.path.exists(root): # 判断根目录是否存在，os.madir()创建根目录
+            os.mkdir(root)
+        if not os.path.exists(path): # 判断文件是否存在，不存在将从get函数获取
             r = requests.get(url)
-            # 判断文件是否存在，不存在将从get函数获取
+
             with open(path, 'wb')as f:
                 # wb存为二进制文件
                 f.write(r.content)
