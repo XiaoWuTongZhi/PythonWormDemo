@@ -18,16 +18,18 @@ import re
 import execjs
 
 
-host='https://mhcdn.manhuazj.com/'
+host= "https://img01.eshanyao.com/" #'https://mhcdn.manhuazj.com/'
 l_url = "https://www.manhuadui.com"
-url = "https://www.manhuadui.com/manhua/guimiezhiren/"
+url = "https://www.manhuadui.com/manhua/jinjidejuren/"
 headers = {  # 模拟浏览器访问网页
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36'}
-response = requests.get(url=url, headers=headers)
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'}
+proxies={'http':'http://127.0.0.1:8888','https':'https://127.0.0.1:8888'}
+response = requests.get(url=url)
 
 def main():
     #获取章节地址
     list_source = dir()
+    list_source = list_source[len(list_source)-2:]
     get_chapters(list_source)
 
 
@@ -41,15 +43,15 @@ def dir():
     print("dir 正则过滤-----------------------------")
     print("正在查找该漫画所有章节的url以及名称")
     list_source=pattern.findall(response.text)
-    #print(list_source)
+    print("章节所有url:",list_source)
     return list_source
-
 
 '''
 功能：获得章节的url以及名称
 心得：正则表达式的写法以及python正则表达式的使用
 '''
 def get_chapters(list_source):
+
     #遍历所有章节的url
     i=0
     for chapter in list_source:
@@ -71,7 +73,7 @@ def get_chapters(list_source):
         chapter_path = get_chapter_Path(res)
 
         print("down_url:")
-        chapter_root='gmzr//'+chapter_name
+        chapter_root='juren/'+chapter_name
         count=1
         for chapter_image in chapter_image_list:
             down_url = host+chapter_path+chapter_image
@@ -149,19 +151,18 @@ def get_decryptImages(chapterImages):
 
 #下载图片
 def download_image(url,chapter_root,image_name,count):
-    root = 'D://ManHua//TEST//'  #给个目录
-    root = root+chapter_root+'//'
+    root = '/Users/michaelwu/Desktop/Python/WormDemo/artifacts/'  #给个目录
+    root = root+chapter_root+'/'
 
+    # 判断根目录是否存在，os.madir()创建根目录
+    if not os.path.exists(root):
+        os.mkdir(root)
     #url = 'https://mhcdn.manhuazj.com/images/comic/5/8412/1551394269327841209ad0db6d.jpg'
     path = root + str(count)+'页.jpg'
 
     print(path)
     try:
-        if not os.path.exists(root):
-            os.mkdir(root)
-            # 判断根目录是否存在，os.madir()创建根目录
         if not os.path.exists(path):
-
             r = requests.get(url)
             # 判断文件是否存在，不存在将从get函数获取
             with open(path, 'wb')as f:
@@ -172,7 +173,7 @@ def download_image(url,chapter_root,image_name,count):
                 f.close()
                 print('文件保存成功')
         else:
-            print('文件已经存在')
+                print('文件已经存在')
     except:
         print('爬取失败')
 
