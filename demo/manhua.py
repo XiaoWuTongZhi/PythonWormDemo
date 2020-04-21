@@ -26,11 +26,12 @@ headers = {  # 模拟浏览器访问网页
 proxies={'http':'http://127.0.0.1:8888','https':'https://127.0.0.1:8888'}
 response = requests.get(url=url)
 
-artifacts_path = '/Users/michaelwu/Desktop/Python/WormDemo/artifacts/'
+artifacts_path = os.path.dirname(os.path.abspath('.')) + '/artifacts/'
 artifacts_dir_path = 'juren/'
 
 def main():
     #获取章节地址
+    mkdirs() # 创建文件夹
     list_source = dir()
     list_source = list_source[len(list_source)-3:] #只爬取最新3话
     get_chapters(list_source)
@@ -48,6 +49,18 @@ def dir():
     list_source=pattern.findall(response.text)
     print("章节所有url:",list_source)
     return list_source
+
+def mkdirs():
+    chapter_path = artifacts_path + artifacts_dir_path
+
+    if not os.path.exists(artifacts_path):
+        print ('创建%s主文件夹', artifacts_path)
+        os.mkdir(artifacts_path)
+
+    if not os.path.exists(chapter_path):
+        print ('创建%s漫画文件夹', chapter_path)
+        os.mkdir(chapter_path)
+
 
 '''
 功能：获得章节的url以及名称
@@ -156,22 +169,21 @@ def get_decryptImages(chapterImages):
     return images_list
 
 
-
-
-
 #下载图片
 def download_image(url,chapter_root,image_name,count):
-    root = artifacts_path  #给个目录
-    root = root+chapter_root+'/'
 
+    root = artifacts_path+chapter_root+'/'
 
     #url = 'https://mhcdn.manhuazj.com/images/comic/5/8412/1551394269327841209ad0db6d.jpg'
     path = root + str(count)+'页.jpg'
 
     print(path)
     try:
+
         if not os.path.exists(root): # 判断根目录是否存在，os.madir()创建根目录
+            print ('创建%s章节文件夹', root)
             os.mkdir(root)
+
         if not os.path.exists(path): # 判断文件是否存在，不存在将从get函数获取
             r = requests.get(url)
 
