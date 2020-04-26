@@ -3,6 +3,3 @@ pymongo
 requests
 PyExecJS
 
-cryptography
-pyOpenSSL
-certifi
